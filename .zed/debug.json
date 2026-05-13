@@ -1,0 +1,15 @@
+[
+  {
+    "label": "Debug DevHub",
+    "adapter": "CodeLLDB",
+    "request": "launch",
+    "program": "$ZED_WORKTREE_ROOT/target/debug/devhub.exe",
+    "build": {
+      "command": "cargo",
+      "args": ["build"]
+    },
+    "args": [],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "sourceLanguages": ["rust"]
+  }
+]

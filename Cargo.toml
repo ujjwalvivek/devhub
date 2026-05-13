@@ -1,0 +1,19 @@
+[package]
+name = "devhub"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = { version = "0.31", default-features = false, features = ["wgpu"] }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+ignore = "0.4"
+directories = "6"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1"
+open = "5"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
