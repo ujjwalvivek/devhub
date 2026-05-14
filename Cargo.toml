@@ -4,7 +4,7 @@ version = "1.0.0"
 edition = "2024"
 
 [dependencies]
-eframe = { version = "0.31", default-features = false, features = ["wgpu"] }
+eframe = { version = "0.31", default-features = false, features = ["wgpu", "x11", "wayland"] }
 rfd = "0.14"
 egui_extras = { version = "0.31", default-features = false, features = ["http"] }
 resvg = { version = "0.37", default-features = false, features = ["text", "system-fonts"] }
