@@ -1,0 +1,14 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.svelte";
+import Features from "../components/Features.svelte";
+import Downloads from "../components/Downloads.svelte";
+import Wallpaper from "../components/Wallpaper.svelte";
+---
+
+<BaseLayout title="devhub | Native desktop hub for projects">
+    <Hero client:load />
+    <Features client:load />
+    <Downloads client:load />
+    <Wallpaper client:load />
+</BaseLayout>

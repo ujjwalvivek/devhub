@@ -1,0 +1,169 @@
+@font-face {
+    font-family: "Monaspace Neon";
+    src: url("https://cdn.ujjwalvivek.com/fonts/Monaspace/Neon/Var.woff2")
+        format("woff2");
+    font-style: normal;
+    font-display: block;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --font-mono: "Monaspace Neon";
+}
+
+:root,
+[data-theme="catppuccin"][data-mode="dark"] {
+    --bg: #1e1e2e;
+    --bg-soft: #27283a;
+    --bg-card: #313244;
+    --border: #45465b;
+    --text: #cdd6f4;
+    --text-dim: #939abb;
+    --text-muted: #6f7590;
+    --accent: #89b4fa;
+}
+
+[data-theme="catppuccin"][data-mode="light"] {
+    --bg: #eff1f5;
+    --bg-soft: #f6f7fa;
+    --bg-card: #ffffff;
+    --border: #c6c9d2;
+    --text: #4c4f69;
+    --text-dim: #87899b;
+    --text-muted: #abadba;
+    --accent: #1e66f5;
+}
+
+[data-theme="rose-pine"][data-mode="dark"] {
+    --bg: #232136;
+    --bg-soft: #26243a;
+    --bg-card: #2a273f;
+    --border: #484361;
+    --text: #e0def4;
+    --text-dim: #a9a4c6;
+    --text-muted: #787392;
+    --accent: #ea9a97;
+}
+
+[data-theme="rose-pine"][data-mode="light"] {
+    --bg: #faf4ed;
+    --bg-soft: #fcf7f0;
+    --bg-card: #fffaf3;
+    --border: #d1ccd0;
+    --text: #575279;
+    --text-dim: #928ca3;
+    --text-muted: #b6b0bc;
+    --accent: #d7827e;
+}
+
+[data-theme="tokyo-night"][data-mode="dark"] {
+    --bg: #24283b;
+    --bg-soft: #292e43;
+    --bg-card: #2f3549;
+    --border: #434a63;
+    --text: #a9b1d6;
+    --text-dim: #7f88b0;
+    --text-muted: #5e6687;
+    --accent: #7aa2f7;
+}
+
+[data-theme="tokyo-night"][data-mode="light"] {
+    --bg: #e1e2e7;
+    --bg-soft: #eaebf0;
+    --bg-card: #f4f5fa;
+    --border: #b6b8c3;
+    --text: #343b58;
+    --text-dim: #72778b;
+    --text-muted: #989cab;
+    --accent: #2e7de9;
+}
+
+[data-theme="horizon"][data-mode="dark"] {
+    --bg: #1c1e26;
+    --bg-soft: #20222c;
+    --bg-card: #232530;
+    --border: #434550;
+    --text: #d5d8da;
+    --text-dim: #9ba0a6;
+    --text-muted: #6f747d;
+    --accent: #e95678;
+}
+
+[data-theme="horizon"][data-mode="light"] {
+    --bg: #f3f0f2;
+    --bg-soft: #f8f7f8;
+    --bg-card: #ffffff;
+    --border: #c1bfc3;
+    --text: #2a2d35;
+    --text-dim: #727379;
+    --text-muted: #9f9ea3;
+    --accent: #d4385f;
+}
+
+[data-theme="monochrome"][data-mode="dark"] {
+    --bg: #000000;
+    --bg-soft: #060606;
+    --bg-card: #0a0a0a;
+    --border: #181818;
+    --text: #ffffff;
+    --text-dim: #aaaaaa;
+    --text-muted: #555555;
+    --accent: #ffffff;
+}
+
+[data-theme="monochrome"][data-mode="light"] {
+    --bg: #ffffff;
+    --bg-soft: #f5f5f5;
+    --bg-card: #ebebeb;
+    --border: #cccccc;
+    --text: #111111;
+    --text-dim: #666666;
+    --text-muted: #999999;
+    --accent: #000000;
+}
+
+html {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    transition:
+        background 0.2s,
+        color 0.2s;
+}
+
+body {
+    min-height: 100vh;
+}
+
+::selection {
+    background: #333;
+    color: #fff;
+}
+
+a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+a:hover {
+    opacity: 0.7;
+}
+
+code,
+pre {
+    font-family: var(--font-mono);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}

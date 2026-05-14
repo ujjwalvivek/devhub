@@ -53,5 +53,27 @@
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
     "save": "all"
+  },
+  {
+    "label": "Web Dev",
+    "command": "npm",
+    "args": ["run", "dev"],
+    "cwd": "$ZED_WORKTREE_ROOT/web",
+    "reveal": "always",
+    "hide": "never",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": true,
+    "save": "all"
+  },
+  {
+    "label": "Web Build",
+    "command": "npm",
+    "args": ["run", "build"],
+    "cwd": "$ZED_WORKTREE_ROOT/web",
+    "reveal": "always",
+    "hide": "never",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "save": "all"
   }
 ]

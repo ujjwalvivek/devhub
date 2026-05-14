@@ -1,0 +1,98 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.svelte";
+import Footer from "../components/Footer.svelte";
+
+export interface Props {
+    title?: string;
+    description?: string;
+    showWallpaperBtn?: boolean;
+}
+
+const {
+    title = "devhub",
+    description = "A native desktop hub for local and remote SSH project discovery.",
+    showWallpaperBtn = true,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link
+            rel="preload"
+            href="https://cdn.ujjwalvivek.com/fonts/Monaspace/Neon/Var.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+        <link
+            rel="icon"
+            type="image/x-icon"
+            href="https://cdn.ujjwalvivek.com/icons/logo192.png"
+        />
+        <link
+            rel="preconnect"
+            href="https://echopoint.ujjwalvivek.com"
+            crossorigin
+        />
+        <script is:inline>
+            (function () {
+                var theme =
+                    localStorage.getItem("devhub-theme") || "monochrome";
+                var mode = localStorage.getItem("devhub-mode") || "system";
+                var effective = mode;
+                if (mode === "system") {
+                    effective = window.matchMedia(
+                        "(prefers-color-scheme: light)",
+                    ).matches
+                        ? "light"
+                        : "dark";
+                }
+                document.documentElement.setAttribute("data-theme", theme);
+                document.documentElement.setAttribute("data-mode", effective);
+            })();
+        </script></head
+    >
+
+    <script is:inline>
+        window.__initTheme = function () {
+            var theme = localStorage.getItem("devhub-theme") || "monochrome";
+            var mode = localStorage.getItem("devhub-mode") || "system";
+            var effective = mode;
+            if (mode === "system") {
+                effective = window.matchMedia("(prefers-color-scheme: light)")
+                    .matches
+                    ? "light"
+                    : "dark";
+            }
+            document.documentElement.setAttribute("data-theme", theme);
+            document.documentElement.setAttribute("data-mode", effective);
+        };
+        window.__theme = {
+            setTheme: function (t) {
+                localStorage.setItem("devhub-theme", t);
+                window.__initTheme();
+            },
+            setMode: function (m) {
+                localStorage.setItem("devhub-mode", m);
+                window.__initTheme();
+            },
+        };
+        window
+            .matchMedia("(prefers-color-scheme: light)")
+            .addEventListener("change", window.__initTheme);
+    </script>
+
+    <body>
+        <Header client:load showWallpaperBtn={showWallpaperBtn} />
+        <main>
+            <slot />
+        </main>
+        <Footer />
+    </body>
+</html>

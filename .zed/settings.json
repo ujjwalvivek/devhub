@@ -28,5 +28,8 @@
     "**/dist",
     "**/build",
     "*.lock",
+    "*-lock.json",
+    "**/.astro",
+    "**/node_modules",
   ],
 }
