@@ -6,6 +6,55 @@ use anyhow::{Context, Result, anyhow};
 
 use crate::discovery::{Project, ProjectSource};
 
+#[derive(Debug, Clone)]
+pub struct DirEntry {
+    pub name: String,
+    pub path: PathBuf,
+}
+
+pub fn list_local_subdirs(path: &Path) -> Result<Vec<DirEntry>> {
+    let mut entries = Vec::new();
+    for entry in std::fs::read_dir(path)? {
+        let entry = entry?;
+        if entry.file_type()?.is_dir() {
+            let name = entry.file_name().to_string_lossy().to_string();
+            entries.push(DirEntry { name, path: entry.path() });
+        }
+    }
+    entries.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+    Ok(entries)
+}
+
+pub fn list_remote_subdirs(host: &str, path: &str) -> Result<Vec<DirEntry>> {
+    let script = format!("find {} -maxdepth 1 -type d ! -name '.' 2>/dev/null | sort", shell_quote(path));
+    let output = run_ssh_script(host, &script)?;
+    let mut entries = Vec::new();
+    for line in output.lines().filter(|l| !l.is_empty()) {
+        let p = PathBuf::from(line);
+        if let Some(name) = p.file_name().and_then(|n| n.to_str()) {
+            if name != "." && !name.is_empty() {
+                entries.push(DirEntry { name: name.to_string(), path: p });
+            }
+        }
+    }
+    entries.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+    Ok(entries)
+}
+
+pub fn list_drives() -> Vec<DirEntry> {
+    let mut drives = Vec::new();
+    for letter in 'A'..='Z' {
+        let path = format!("{letter}:\\");
+        if Path::new(&path).exists() {
+            drives.push(DirEntry {
+                name: format!("{letter}:"),
+                path: PathBuf::from(&path),
+            });
+        }
+    }
+    drives
+}
+
 const MAX_FILE_BYTES: u64 = 512 * 1024;
 const MAX_PREVIEW_BYTES: usize = 200 * 1024;
 const MAX_TREE_ENTRIES: usize = 500;

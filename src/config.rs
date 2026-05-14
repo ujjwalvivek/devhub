@@ -3,10 +3,18 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+use crate::ui::theme::{AppearanceMode, ThemeId};
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default)]
     pub onboarding_complete: bool,
+
+    #[serde(default = "default_theme")]
+    pub theme: ThemeId,
+
+    #[serde(default = "default_appearance")]
+    pub appearance: AppearanceMode,
 
     #[serde(default)]
     pub scan_dirs: Vec<PathBuf>,
@@ -22,6 +30,12 @@ pub struct Config {
 
     #[serde(default = "default_editor_key")]
     pub default_editor: String,
+
+    #[serde(default)]
+    pub disabled_local_dirs: Vec<PathBuf>,
+
+    #[serde(default)]
+    pub disabled_remote_hosts: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -64,6 +78,14 @@ fn default_editor_key() -> String {
     "code".into()
 }
 
+fn default_theme() -> ThemeId {
+    ThemeId::CatppuccinMocha
+}
+
+fn default_appearance() -> AppearanceMode {
+    AppearanceMode::System
+}
+
 fn default_editors() -> HashMap<String, EditorConfig> {
     let mut m = HashMap::new();
     m.insert(
@@ -91,11 +113,15 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             onboarding_complete: false,
+            theme: default_theme(),
+            appearance: default_appearance(),
             scan_dirs: Vec::new(),
             max_depth: default_max_depth(),
             remote_hosts: Vec::new(),
             editors: default_editors(),
             default_editor: default_editor_key(),
+            disabled_local_dirs: Vec::new(),
+            disabled_remote_hosts: Vec::new(),
         }
     }
 }
