@@ -3,8 +3,7 @@
 <p>
   <img src="https://echopoint.ujjwalvivek.com/svg/badges/stars?repo=devhub&logo=github&bg=111111&badgeColor=2b2b2b&textColor=e8e8e8&border=555555&borderWidth=2&rx=0&px=6&py=4" height="24" alt="stars">
   <img src="https://echopoint.ujjwalvivek.com/svg/badges/updated?repo=devhub&logo=github&bg=111111&badgeColor=2b2b2b&textColor=e8e8e8&border=555555&borderWidth=2&rx=0&px=6&py=4" height="24" alt="updated">
-  <img src="https://echopoint.ujjwalvivek.com/svg/badges/health?repo=devhub&logo=github&bg=111111&badgeColor=2b2b2b&textColor=e8e8e8&border=555555&borderWidth=2&rx=0&px=6&py=4" height="24" alt="health">
-  <img src="https://echopoint.ujjwalvivek.com/svg/badges/commits?repo=devhub&logo=github&bg=111111&badgeColor=2b2b2b&textColor=e8e8e8&border=555555&borderWidth=2&rx=0&px=6&py=4" height="24" alt="commits">
+  <img src="https://echopoint.ujjwalvivek.com/svg/badges/health?repo=devhub&logo=github&bg=111111&badgeColor=2b2b2b&textColor=e8e8e8&border=555555&borderWidth=2&rx=0&px=6&py=4" height="24" alt="health">ś
   <img src="https://echopoint.ujjwalvivek.com/svg/badges/release?repo=devhub&logo=github&bg=111111&badgeColor=2b2b2b&textColor=e8e8e8&border=555555&borderWidth=2&rx=0&px=6&py=4" height="24" alt="releases">
 </p>
 
