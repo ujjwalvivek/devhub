@@ -529,14 +529,15 @@ var tocHtml = renderTree(root);
         margin-bottom: 12px;
     }
     :global(.content table) {
+        display: block;
+        overflow-x: auto;
+        text-wrap: nowrap;
+        white-space: nowrap;
+        font-size: 12px;
+        border-spacing: 0;
         width: 100%;
         border-collapse: separate;
-        border-spacing: 0;
-        margin-bottom: 28px;
-        font-size: 14px;
         border: 1px solid var(--border);
-        border-radius: 0;
-        overflow: hidden;
     }
     :global(.content thead) {
         background: var(--bg-soft);
@@ -607,9 +608,10 @@ var tocHtml = renderTree(root);
             max-width: 100%;
             overflow-x: auto;
         }
-        :global(.content table) {
+        .content table {
             display: block;
             overflow-x: auto;
+            text-wrap: nowrap;
             white-space: nowrap;
             font-size: 11px;
         }
