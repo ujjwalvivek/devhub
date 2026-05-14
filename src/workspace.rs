@@ -31,10 +31,11 @@ pub fn list_remote_subdirs(host: &str, path: &str) -> Result<Vec<DirEntry>> {
     let mut entries = Vec::new();
     for line in output.lines().filter(|l| !l.is_empty()) {
         let p = PathBuf::from(line);
-        if let Some(name) = p.file_name().and_then(|n| n.to_str()) {
-            if name != "." && !name.is_empty() {
-                entries.push(DirEntry { name: name.to_string(), path: p });
-            }
+        if let Some(name) = p.file_name().and_then(|n| n.to_str())
+            && name != "."
+            && !name.is_empty()
+        {
+            entries.push(DirEntry { name: name.to_string(), path: p });
         }
     }
     entries.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));

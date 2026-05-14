@@ -101,10 +101,9 @@ impl egui::load::ImageLoader for EchopointSvgLoader {
             .split("&egui_width=")
             .nth(1)
             .and_then(|s| s.split('&').next())
+            && let Ok(w) = c_str.parse::<u32>()
         {
-            if let Ok(w) = c_str.parse::<u32>() {
-                actual_hint = egui::load::SizeHint::Width(w);
-            }
+            actual_hint = egui::load::SizeHint::Width(w);
         }
 
         let mut cache = self.cache.lock();
@@ -444,10 +443,10 @@ impl DevHub {
     }
 
     fn add_picked_remote_dir(&mut self, host_idx: usize, root: String, ctx: &egui::Context) {
-        if let Some(host) = self.config.remote_hosts.get_mut(host_idx) {
-            if !host.roots.iter().any(|r| r == &root) {
-                host.roots.push(root);
-            }
+        if let Some(host) = self.config.remote_hosts.get_mut(host_idx)
+            && !host.roots.iter().any(|r| r == &root)
+        {
+            host.roots.push(root);
         }
         self.commit_sources(ctx);
     }

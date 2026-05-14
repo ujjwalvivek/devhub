@@ -3,8 +3,8 @@
   "format_on_save": "on",
   "languages": {
     "Rust": {
-      "formatter": "language_server"
-    }
+      "formatter": "language_server",
+    },
   },
   "lsp": {
     "rust-analyzer": {
@@ -12,20 +12,21 @@
         "checkOnSave": true,
         "check": {
           "command": "clippy",
-          "extraArgs": ["--", "-D", "warnings"]
+          "extraArgs": ["--", "-D", "warnings"],
         },
         "cargo": {
           "buildScripts": {
-            "enable": true
-          }
-        }
-      }
-    }
+            "enable": true,
+          },
+        },
+      },
+    },
   },
   "file_scan_exclusions": [
     "**/.git",
     "**/target",
     "**/dist",
-    "**/build"
-  ]
+    "**/build",
+    "*.lock",
+  ],
 }

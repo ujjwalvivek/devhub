@@ -21,17 +21,30 @@ fn main() -> Result<()> {
     let config = config::Config::load_or_create()?;
     tracing::info!(scan_dirs = ?config.scan_dirs, "config loaded");
 
+    let icon = image::load_from_memory(include_bytes!("../assets/icon.png"))
+        .ok()
+        .map(|img| {
+            let rgba = img.into_rgba8();
+            let (w, h) = rgba.dimensions();
+            eframe::egui::IconData {
+                rgba: rgba.into_raw(),
+                width: w,
+                height: h,
+            }
+        });
+
     let options = eframe::NativeOptions {
         viewport: eframe::egui::ViewportBuilder::default()
             .with_inner_size([1920.0, 1080.0])
             .with_min_inner_size([800.0, 500.0])
             .with_decorations(false)
-            .with_title("devhub"),
+            .with_title("devhub")
+            .with_icon(icon.unwrap_or_default()),
         ..Default::default()
     };
 
     eframe::run_native(
-        "devhub",
+        "Devhub",
         options,
         Box::new(move |cc| Ok(Box::new(app::DevHub::new(cc, config)))),
     )

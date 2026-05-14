@@ -1,0 +1,83 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            ext: ""
+            archive: tar.gz
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            ext: ""
+            archive: tar.gz
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            ext: ".exe"
+            archive: zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo build --release --target ${{ matrix.target }}
+
+      - name: package
+        shell: bash
+        run: |
+          BIN="devhub${{ matrix.ext }}"
+          SRC="target/${{ matrix.target }}/release/$BIN"
+          DIR="devhub-${{ matrix.target }}"
+          mkdir -p "$DIR"
+          cp "$SRC" "$DIR/"
+          cp README.md LICENSE "$DIR/" 2>/dev/null || true
+          if [ "${{ matrix.archive }}" = "zip" ]; then
+            7z a -r "${DIR}.zip" "$DIR"
+          else
+            tar czf "${DIR}.tar.gz" "$DIR"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: devhub-${{ matrix.target }}
+          path: devhub-${{ matrix.target }}.${{ matrix.archive }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: generate checksums
+        run: |
+          cd artifacts
+          sha256sum */* > checksums.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          body_path: RELEASE-NOTES.md
+          fail_on_unmatched_files: true
+          files: |
+            artifacts/**/*
