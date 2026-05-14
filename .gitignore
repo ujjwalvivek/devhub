@@ -5,5 +5,4 @@ temp/
 *.tsbuildinfo
 .astro/
 *.log
-package-lock.json
 *.env
