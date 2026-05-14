@@ -634,5 +634,11 @@
         .clicker {
             margin-bottom: 24px;
         }
+        .title {
+            text-shadow: 0 0 3px var(--accent);
+        }
+        .clicker-score {
+            text-shadow: 0 0 5px var(--accent);
+        }
     }
 </style>
