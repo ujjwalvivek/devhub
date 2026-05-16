@@ -11,7 +11,7 @@ interface TocEntry {
 
 var highlightCode = function (code: string): string {
     var pattern =
-        /('(?:\\'|[^'])*'|"(?:\\"|[^"])*"|`[\s\S]*?`|\/\*[\s\S]*?\*\/|\/\/.*?(?=\n|$)|#.*?(?=\n|$)|#!?\[.*?\]|'[\w]+|\b\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?(?:f32|f64|u\d+|i\d+|usize|isize)?\b|^\[[\w.\-/]+\]|\b\w+!(?!=)|\b(?:true|false|None|Some|Ok|Err|unsafe|extern|union|dyn|abstract|become|box|do|final|macro|override|priv|try|typeof|unsized|virtual|yield|fn|let|mut|struct|enum|impl|match|use|mod|pub|self|Self|return|async|await|if|else|for|while|loop|in|where|type|trait|const|static|ref|move|break|continue|crate|super|as)\b|\b(?:Clone|Copy|Debug|Display|Default|Eq|PartialEq|Ord|PartialOrd|Hash|Iterator|Into|From|IntoIterator|Send|Sync|Sized|Drop|Deref|DerefMut|ToOwned|AsRef|AsMut|Borrow|BorrowMut|HashMap|HashSet|BTreeMap|BTreeSet|VecDeque|LinkedList|BinaryHeap|Arc|Rc|Cell|RefCell|Mutex|RwLock|Cow|Box|Vec|String|Option|Result|Path|PathBuf|OsStr|OsString)\b)/gm;
+        /('(?:\\'|[^'])*'|"(?:\\"|[^"])*"|`[\s\S]*?`|\/\*[\s\S]*?\*\/|\bhttps?:\/\/\S+|\/\/.*?(?=\n|$)|#.*?(?=\n|$)|#!?\[.*?\]|'[\w]+|\b\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?(?:f32|f64|u\d+|i\d+|usize|isize)?\b|^\[[\w.\-/]+\]|\b\w+!(?!=)|\b(?:true|false|None|Some|Ok|Err|unsafe|extern|union|dyn|abstract|become|box|do|final|macro|override|priv|try|typeof|unsized|virtual|yield|fn|let|mut|struct|enum|impl|match|use|mod|pub|self|Self|return|async|await|if|else|for|while|loop|in|where|type|trait|const|static|ref|move|break|continue|crate|super|as)\b|\b(?:Clone|Copy|Debug|Display|Default|Eq|PartialEq|Ord|PartialOrd|Hash|Iterator|Into|From|IntoIterator|Send|Sync|Sized|Drop|Deref|DerefMut|ToOwned|AsRef|AsMut|Borrow|BorrowMut|HashMap|HashSet|BTreeMap|BTreeSet|VecDeque|LinkedList|BinaryHeap|Arc|Rc|Cell|RefCell|Mutex|RwLock|Cow|Box|Vec|String|Option|Result|Path|PathBuf|OsStr|OsString)\b)/gm;
     return code.replace(pattern, function (match: string) {
         if (
             match.startsWith("'") ||
@@ -22,6 +22,12 @@ var highlightCode = function (code: string): string {
         if (match.startsWith("/*"))
             return (
                 '<span style="color:var(--text-muted);font-style:italic">' +
+                match +
+                "</span>"
+            );
+        if (/^https?:\/\//.test(match))
+            return (
+                '<span style="color:var(--accent);text-decoration:underline">' +
                 match +
                 "</span>"
             );
@@ -66,7 +72,16 @@ var parseMarkdown = function (md: string): string {
         function (_match: string, _lang: string, p1: string) {
             var code = p1.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             code = highlightCode(code);
-            blocks.push('<pre><code class="hljs">' + code + "</code></pre>");
+            blocks.push(
+                '<div class="code-block-wrap">' +
+                    '<button class="copy-btn" onclick="copyCode(this)" aria-label="Copy code">' +
+                    '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M2 2h13v5.5h-2V4H4v9h3.5v2H2zm7 7h13v13H9z" /></svg>' +
+                    "</button>" +
+                    '<pre><code class="hljs">' +
+                    code +
+                    "</code></pre>" +
+                    "</div>",
+            );
             return "__CODE_BLOCK_" + (blocks.length - 1) + "__";
         },
     );
@@ -93,21 +108,24 @@ var parseMarkdown = function (md: string): string {
     var out: string[] = [];
     var inTable = false;
     var inList = false;
-    var tableHeader = false;
+    var inTableHead = false;
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i].trim();
         if (line.match(/^\|[\s\-:|]+\|$/)) {
             if (!inTable) continue;
-            tableHeader = true;
+            if (inTableHead) {
+                out.push("</thead><tbody>");
+                inTableHead = false;
+            }
             continue;
         }
         if (line.startsWith("|") && line.endsWith("|")) {
             if (!inTable) {
-                out.push("<table>");
+                out.push("<table><thead>");
                 inTable = true;
-                tableHeader = true;
+                inTableHead = true;
             }
-            var tag = tableHeader ? "th" : "td";
+            var tag = inTableHead ? "th" : "td";
             var cells = line
                 .substring(1, line.length - 1)
                 .split("|")
@@ -116,13 +134,12 @@ var parseMarkdown = function (md: string): string {
                 })
                 .join("");
             out.push("<tr>" + cells + "</tr>");
-            tableHeader = false;
             continue;
         }
         if (inTable) {
-            out.push("</table>");
+            out.push(inTableHead ? "</thead></table>" : "</tbody></table>");
             inTable = false;
-            tableHeader = false;
+            inTableHead = false;
         }
         if (line.startsWith("- ")) {
             if (!inList) {
@@ -141,7 +158,8 @@ var parseMarkdown = function (md: string): string {
             out.push(line);
         else out.push("<p>" + line + "</p>");
     }
-    if (inTable) out.push("</table>");
+    if (inTable)
+        out.push(inTableHead ? "</thead></table>" : "</tbody></table>");
     if (inList) out.push("</ul>");
     var html = out.join("\n");
     for (var j = 0; j < blocks.length; j++) {
@@ -151,7 +169,7 @@ var parseMarkdown = function (md: string): string {
 };
 
 const technicalPath = resolve(process.cwd(), "public/docs/TECHNICAL.md");
-const raw = readFileSync(technicalPath, "utf-8");
+const raw = readFileSync(technicalPath, "utf-8").replace(/\r\n/g, "\n");
 
 const toc: TocEntry[] = [];
 const usedIds = new Map<string, number>();
@@ -287,6 +305,21 @@ var tocHtml = renderTree(root);
         })();
     </script>
 
+    <script is:inline>
+        function copyCode(btn) {
+            var code = btn.parentElement.querySelector("code");
+            var text = code.textContent;
+            navigator.clipboard.writeText(text).then(function () {
+                btn.innerHTML =
+                    '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="m9 20.42l-6.21-6.21l2.83-2.83L9 14.77l9.88-9.89l2.83 2.83z" /></svg>';
+                setTimeout(function () {
+                    btn.innerHTML =
+                        '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M2 2h13v5.5h-2V4H4v9h3.5v2H2zm7 7h13v13H9z" /></svg>';
+                }, 2000);
+            });
+        }
+    </script>
+
     <article class="docs">
         <div class="docs-inner">
             <nav class="toc">
@@ -319,7 +352,6 @@ var tocHtml = renderTree(root);
         align-items: flex-start;
         padding: 0 24px;
     }
-
     .toc {
         width: 240px;
         flex-shrink: 0;
@@ -459,7 +491,31 @@ var tocHtml = renderTree(root);
         border: 1px dashed var(--border);
         color: var(--accent);
     }
-
+    :global(.content .code-block-wrap) {
+        position: relative;
+    }
+    :global(.content .copy-btn) {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 5px;
+        line-height: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+        transition:
+            color 0.15s,
+            border-color 0.15s;
+    }
+    :global(.content .copy-btn:hover) {
+        color: var(--text);
+        border-color: var(--accent);
+    }
     :global(.content pre) {
         background: var(--bg-card);
         border: 2px dashed var(--border);
@@ -529,15 +585,21 @@ var tocHtml = renderTree(root);
         margin-bottom: 12px;
     }
     :global(.content table) {
-        display: block;
         overflow-x: auto;
         text-wrap: nowrap;
         white-space: nowrap;
+        font-family: var(--font-mono);
         font-size: 12px;
+        line-height: 1.7;
         border-spacing: 0;
         width: 100%;
         border-collapse: separate;
         border: 1px solid var(--border);
+    }
+    :global(.content table :where(thead, tbody, tr, th, td)) {
+        font-family: var(--font-mono);
+        font-size: inherit;
+        line-height: inherit;
     }
     :global(.content thead) {
         background: var(--bg-soft);
@@ -581,6 +643,14 @@ var tocHtml = renderTree(root);
     :global(.content h2 + h3) {
         margin-top: 24px;
     }
+    @media (max-width: 1000px) {
+        :global(.content table) {
+            display: block;
+            overflow-x: auto;
+            text-wrap: nowrap;
+            white-space: nowrap;
+        }
+    }
     @media (max-width: 900px) {
         .docs-inner {
             flex-direction: column;
@@ -608,12 +678,11 @@ var tocHtml = renderTree(root);
             max-width: 100%;
             overflow-x: auto;
         }
-        .content table {
-            display: block;
+        :global(.content table) {
+            display: table;
             overflow-x: auto;
             text-wrap: nowrap;
             white-space: nowrap;
-            font-size: 11px;
         }
         :global(.content pre) {
             max-width: 100%;
@@ -623,6 +692,11 @@ var tocHtml = renderTree(root);
         }
         :global(.content h1) {
             font-size: 24px;
+        }
+    }
+    @media (max-width: 500px) {
+        .docs-inner {
+            padding: 0 16px;
         }
     }
 </style>

@@ -153,6 +153,12 @@
 </script>
 
 <section class="hero">
+    <div class="hero-top">
+        <div class="clicker">
+            <div class="clicker-score">{scoreText}</div>
+            <button class="clicker-btn" onclick={handleClick}>CLICK ME!</button>
+        </div>
+    </div>
     <div class="hero-box">
         <div class="box-corner tl"></div>
         <div class="box-corner tr"></div>
@@ -183,12 +189,6 @@
                     href="https://github.com/ujjwalvivek/devhub"
                     class="btn secondary">github</a
                 >
-                <div class="clicker">
-                    <div class="clicker-score">{scoreText}</div>
-                    <button class="clicker-btn" onclick={handleClick}
-                        >CLICK ME!</button
-                    >
-                </div>
             </div>
         </div>
 
@@ -289,9 +289,20 @@
 
 <style>
     .hero {
-        padding: 90px 24px 24px;
+        padding: 60px 24px 24px;
         max-width: 1200px;
         margin: 0 auto;
+    }
+    .hero-top {
+        position: relative;
+        display: flex;
+        gap: 0;
+        background: color-mix(in srgb, var(--bg-card) 10%, transparent);
+        backdrop-filter: blur(32px);
+        -webkit-backdrop-filter: blur(32px);
+        border: 2px dashed color-mix(in srgb, var(--border) 50%, transparent);
+        padding: 16px;
+        margin-bottom: 16px;
     }
     .hero-box {
         position: relative;
@@ -433,22 +444,30 @@
         max-width: 700px;
     }
     .actions {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        max-width: 400px;
+        width: min(100%, 520px);
+        margin-bottom: 32px;
     }
     .btn {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
+        min-width: 0;
+        min-height: 40px;
         font-family: var(--font-mono);
         font-size: 12px;
-        padding: 9px 24px;
+        line-height: 1.2;
+        padding: 9px 16px;
         border: 1px solid var(--border);
         background: var(--bg-card);
         color: var(--text);
         text-decoration: none;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
         transition:
             background 0.15s,
             border-color 0.15s,
@@ -471,7 +490,6 @@
         display: flex;
         align-items: stretch;
         width: 100%;
-        margin-top: 10px;
         gap: 0;
     }
     .clicker-score {
@@ -607,7 +625,16 @@
         color: var(--text-muted);
         letter-spacing: 0.5px;
     }
-    @media (max-width: 768px) {
+    @media (max-width: 1000px) {
+        .hero-left {
+            flex: 6;
+        }
+        .hero-right {
+            flex: 4;
+            padding-right: 0;
+        }
+    }
+    @media (max-width: 850px) {
         .controls {
             flex-direction: column;
             gap: 8px;
@@ -619,26 +646,47 @@
         .hero-left {
             padding-right: 0;
         }
+        .hero-right {
+            width: 100%;
+            justify-content: stretch;
+        }
         .actions {
-            flex-direction: row;
-            justify-content: space-between;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            width: 100%;
+            gap: 8px;
         }
         .btn {
-            width: fit-content;
-            text-wrap: nowrap;
-            text-overflow: ellipsis;
-            padding: 12px;
-            justify-content: center;
-            align-items: center;
+            padding: 10px 8px;
         }
         .clicker {
-            margin-bottom: 24px;
+            width: 100%;
         }
         .title {
             text-shadow: 0 0 2px var(--accent);
         }
         .clicker-score {
             text-shadow: 0 0 3px var(--accent);
+        }
+        .hero-right {
+            width: 100%;
+        }
+    }
+    @media (max-width: 600px) {
+        .actions {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+    }
+    @media (max-width: 430px) {
+        .title {
+            font-size: 36px;
+        }
+        .actions {
+            width: 100%;
+            grid-template-columns: 1fr;
+        }
+        .btn {
+            width: 100%;
         }
     }
 </style>
