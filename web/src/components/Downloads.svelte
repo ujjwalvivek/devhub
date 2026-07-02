@@ -348,6 +348,7 @@
     }
     .legacy-title {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: 8px;
         font-family: var(--font-mono);
@@ -367,9 +368,24 @@
     .legacy-link:hover {
         color: var(--text);
     }
+    .version-badge {
+        vertical-align: middle;
+        margin-left: 8px;
+    }
     @media (max-width: 768px) {
         .os-grid {
             grid-template-columns: repeat(1, 1fr);
+        }
+        .legacy-title {
+            gap: 6px;
+        }
+        .legacy-title .version-badge {
+            margin-left: 0;
+            height: 20px;
+        }
+        .legacy-link {
+            margin-left: 0;
+            width: 100%;
         }
     }
 </style>
