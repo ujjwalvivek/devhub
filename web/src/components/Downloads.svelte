@@ -381,7 +381,6 @@
         }
         .legacy-title .version-badge {
             margin-left: 0;
-            height: 20px;
         }
         .legacy-link {
             margin-left: 0;
