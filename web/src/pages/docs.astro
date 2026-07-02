@@ -1,7 +1,14 @@
 ---
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { Marked } from "marked";
+import { markedHighlight } from "marked-highlight";
+import hljs from "highlight.js/lib/core";
+import bash from "highlight.js/lib/languages/bash";
+import rust from "highlight.js/lib/languages/rust";
+import "highlight.js/styles/github-dark.css";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+hljs.registerLanguage("bash", bash);
+hljs.registerLanguage("rust", rust);
 
 interface TocEntry {
     text: string;
@@ -9,167 +16,10 @@ interface TocEntry {
     id: string;
 }
 
-var highlightCode = function (code: string): string {
-    var pattern =
-        /('(?:\\'|[^'])*'|"(?:\\"|[^"])*"|`[\s\S]*?`|\/\*[\s\S]*?\*\/|\bhttps?:\/\/\S+|\/\/.*?(?=\n|$)|#.*?(?=\n|$)|#!?\[.*?\]|'[\w]+|\b\d[\d_]*(?:\.[\d_]+)?(?:[eE][+-]?\d+)?(?:f32|f64|u\d+|i\d+|usize|isize)?\b|^\[[\w.\-/]+\]|\b\w+!(?!=)|\b(?:true|false|None|Some|Ok|Err|unsafe|extern|union|dyn|abstract|become|box|do|final|macro|override|priv|try|typeof|unsized|virtual|yield|fn|let|mut|struct|enum|impl|match|use|mod|pub|self|Self|return|async|await|if|else|for|while|loop|in|where|type|trait|const|static|ref|move|break|continue|crate|super|as)\b|\b(?:Clone|Copy|Debug|Display|Default|Eq|PartialEq|Ord|PartialOrd|Hash|Iterator|Into|From|IntoIterator|Send|Sync|Sized|Drop|Deref|DerefMut|ToOwned|AsRef|AsMut|Borrow|BorrowMut|HashMap|HashSet|BTreeMap|BTreeSet|VecDeque|LinkedList|BinaryHeap|Arc|Rc|Cell|RefCell|Mutex|RwLock|Cow|Box|Vec|String|Option|Result|Path|PathBuf|OsStr|OsString)\b)/gm;
-    return code.replace(pattern, function (match: string) {
-        if (
-            match.startsWith("'") ||
-            match.startsWith('"') ||
-            match.startsWith("`")
-        )
-            return '<span style="color:var(--text)">' + match + "</span>";
-        if (match.startsWith("/*"))
-            return (
-                '<span style="color:var(--text-muted);font-style:italic">' +
-                match +
-                "</span>"
-            );
-        if (/^https?:\/\//.test(match))
-            return (
-                '<span style="color:var(--accent);text-decoration:underline">' +
-                match +
-                "</span>"
-            );
-        if (match.startsWith("//") || match.startsWith("#"))
-            return (
-                '<span style="color:var(--text-muted);font-style:italic">' +
-                match +
-                "</span>"
-            );
-        if (/^#!?\[/.test(match))
-            return '<span style="color:var(--text-muted)">' + match + "</span>";
-        if (/^'[\w]+$/.test(match))
-            return '<span style="color:var(--text-muted)">' + match + "</span>";
-        if (match.endsWith("!"))
-            return (
-                '<span style="color:var(--accent);font-weight:600">' +
-                match +
-                "</span>"
-            );
-        if (/^\d/.test(match))
-            return '<span style="color:var(--accent)">' + match + "</span>";
-        if (/^\[[\w.\-/]+\]$/.test(match))
-            return (
-                '<span style="color:var(--accent);font-weight:600">' +
-                match +
-                "</span>"
-            );
-        if (
-            /^(Clone|Copy|Debug|Display|Default|Eq|PartialEq|Ord|PartialOrd|Hash|Iterator|Into|From|IntoIterator|Send|Sync|Sized|Drop|Deref|DerefMut|ToOwned|AsRef|AsMut|Borrow|BorrowMut|HashMap|HashSet|BTreeMap|BTreeSet|VecDeque|LinkedList|BinaryHeap|Arc|Rc|Cell|RefCell|Mutex|RwLock|Cow|Box|Vec|String|Option|Result|Path|PathBuf|OsStr|OsString)$/.test(
-                match,
-            )
-        )
-            return '<span style="color:var(--text-dim)">' + match + "</span>";
-        return '<span style="color:var(--accent)">' + match + "</span>";
-    });
-};
-
-var parseMarkdown = function (md: string): string {
-    var blocks: string[] = [];
-    md = md.replace(
-        /```([a-z]*)\n([\s\S]*?)```/gim,
-        function (_match: string, _lang: string, p1: string) {
-            var code = p1.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            code = highlightCode(code);
-            blocks.push(
-                '<div class="code-block-wrap">' +
-                    '<button class="copy-btn" onclick="copyCode(this)" aria-label="Copy code">' +
-                    '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M2 2h13v5.5h-2V4H4v9h3.5v2H2zm7 7h13v13H9z" /></svg>' +
-                    "</button>" +
-                    '<pre><code class="hljs">' +
-                    code +
-                    "</code></pre>" +
-                    "</div>",
-            );
-            return "__CODE_BLOCK_" + (blocks.length - 1) + "__";
-        },
-    );
-    md = md.replace(
-        new RegExp("\x60([^\x60\n]+)\x60", "g"),
-        function (_match: string, p1: string) {
-            return (
-                "<code>" +
-                p1.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
-                "</code>"
-            );
-        },
-    );
-    md = md.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-    md = md.replace(/^### (.*$)/gm, "<h3>$1</h3>");
-    md = md.replace(/^## (.*$)/gm, "<h2>$1</h2>");
-    md = md.replace(/^# (.*$)/gm, "<h1>$1</h1>");
-    md = md.replace(
-        /\[([^\]]+)\]\(([^)]+)\)/g,
-        '<a href="$2" target="_blank">$1</a>',
-    );
-    md = md.replace(/^---$/gm, "<hr>");
-    var lines = md.split("\n");
-    var out: string[] = [];
-    var inTable = false;
-    var inList = false;
-    var inTableHead = false;
-    for (var i = 0; i < lines.length; i++) {
-        var line = lines[i].trim();
-        if (line.match(/^\|[\s\-:|]+\|$/)) {
-            if (!inTable) continue;
-            if (inTableHead) {
-                out.push("</thead><tbody>");
-                inTableHead = false;
-            }
-            continue;
-        }
-        if (line.startsWith("|") && line.endsWith("|")) {
-            if (!inTable) {
-                out.push("<table><thead>");
-                inTable = true;
-                inTableHead = true;
-            }
-            var tag = inTableHead ? "th" : "td";
-            var cells = line
-                .substring(1, line.length - 1)
-                .split("|")
-                .map(function (c) {
-                    return "<" + tag + ">" + c.trim() + "</" + tag + ">";
-                })
-                .join("");
-            out.push("<tr>" + cells + "</tr>");
-            continue;
-        }
-        if (inTable) {
-            out.push(inTableHead ? "</thead></table>" : "</tbody></table>");
-            inTable = false;
-            inTableHead = false;
-        }
-        if (line.startsWith("- ")) {
-            if (!inList) {
-                out.push("<ul>");
-                inList = true;
-            }
-            out.push("<li>" + line.substring(2) + "</li>");
-            continue;
-        }
-        if (inList) {
-            out.push("</ul>");
-            inList = false;
-        }
-        if (line === "") continue;
-        if (line.startsWith("<") || line.startsWith("__CODE_BLOCK_"))
-            out.push(line);
-        else out.push("<p>" + line + "</p>");
-    }
-    if (inTable)
-        out.push(inTableHead ? "</thead></table>" : "</tbody></table>");
-    if (inList) out.push("</ul>");
-    var html = out.join("\n");
-    for (var j = 0; j < blocks.length; j++) {
-        html = html.replace("__CODE_BLOCK_" + j + "__", blocks[j]);
-    }
-    return html;
-};
-
-const technicalPath = resolve(process.cwd(), "public/docs/TECHNICAL.md");
-const raw = readFileSync(technicalPath, "utf-8").replace(/\r\n/g, "\n");
+const res = await fetch(
+    "https://raw.githubusercontent.com/ujjwalvivek/devhub-gpui/main/ADR.md",
+);
+const raw = await res.text();
 
 const toc: TocEntry[] = [];
 const usedIds = new Map<string, number>();
@@ -178,6 +28,7 @@ function slug(text: string): string {
     var s = text
         .toLowerCase()
         .replace(/<[^>]+>/g, "")
+        .replace(/&[a-z]+;/g, "")
         .replace(/[^\w]+/g, "-")
         .replace(/^-|-$/g, "");
     if (usedIds.has(s)) {
@@ -190,33 +41,35 @@ function slug(text: string): string {
     return s;
 }
 
-var inCode = false;
-var rawLines = raw.split("\n");
-for (var _i = 0; _i < rawLines.length; _i++) {
-    var line = rawLines[_i];
-    if (line.startsWith("```")) {
-        inCode = !inCode;
-        continue;
-    }
-    if (inCode) continue;
-    var m = line.match(/^(#{1,4})\s+(.+)/);
-    if (m) {
-        var level = m[1].length;
-        var text = m[2].trim();
-        var id = slug(text);
-        toc.push({ text, level, id });
-    }
-}
-
-usedIds.clear();
-var html = parseMarkdown(raw);
-html = html.replace(
-    /<(h[1-4])>(.*?)<\/\1>/g,
-    function (_m: string, tag: string, text: string) {
-        var id = slug(text.replace(/<[^>]+>/g, ""));
-        return "<" + tag + ' id="' + id + '">' + text + "</" + tag + ">";
-    },
+const marked = new Marked(
+    markedHighlight({
+        langPrefix: "hljs language-",
+        highlight(code: string, lang: string) {
+            const language = hljs.getLanguage(lang) ? lang : "plaintext";
+            if (language === "plaintext") return code;
+            return hljs.highlight(code, { language }).value;
+        },
+    }),
 );
+
+const renderer = {
+    heading({ tokens, depth }: { tokens: any[]; depth: number }) {
+        const text = this.parser.parseInline(tokens);
+        const id = slug(text);
+        if (depth <= 4) {
+            toc.push({ text, level: depth, id });
+        }
+        return `<h${depth} id="${id}">${text}</h${depth}>\n`;
+    },
+    code({ text, lang }: { text: string; lang?: string }) {
+        const langClass = lang ? `hljs language-${lang}` : "hljs";
+        return `<div class="code-block-wrap"><button class="copy-btn" onclick="copyCode(this)" aria-label="Copy code"><svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M2 2h13v5.5h-2V4H4v9h3.5v2H2zm7 7h13v13H9z" /></svg></button><pre><code class="${langClass}">${text}</code></pre></div>`;
+    },
+};
+
+marked.use({ renderer });
+
+const html = await marked.parse(raw);
 
 interface TreeNode {
     entry: TocEntry | null;
@@ -259,8 +112,8 @@ var tocHtml = renderTree(root);
 ---
 
 <BaseLayout
-    title="Technical Docs"
-    description="Technical documentation for devhub"
+    title="LLM Rationale"
+    description="Decision log and technical rationale for porting DevHub from egui to GPUI"
     showWallpaperBtn={false}
 >
     <script is:inline>
@@ -320,19 +173,51 @@ var tocHtml = renderTree(root);
         }
     </script>
 
+    <script is:inline>
+        (function () {
+            function initTocScroll() {
+                var links = document.querySelectorAll('.toc-tree a');
+                if (!links.length) return;
+                var headings = [];
+                links.forEach(function (link) {
+                    var id = link.getAttribute('href');
+                    if (id && id.startsWith('#')) {
+                        var el = document.getElementById(id.slice(1));
+                        if (el) headings.push({ el: el, link: link });
+                    }
+                });
+                if (!headings.length) return;
+                var observer = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        var h = headings.find(function (h) { return h.el === entry.target; });
+                        if (!h) return;
+                        if (entry.isIntersecting) {
+                            links.forEach(function (l) { l.classList.remove('toc-active'); });
+                            h.link.classList.add('toc-active');
+                        }
+                    });
+                }, { rootMargin: '-80px 0px -70% 0px' });
+                headings.forEach(function (h) { observer.observe(h.el); });
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initTocScroll);
+            } else {
+                initTocScroll();
+            }
+        })();
+    </script>
+
     <article class="docs">
         <div class="docs-inner">
             <nav class="toc">
-                <div class="toc-inner">
-                    <button
-                        class="toc-toggle"
-                        onclick="this.parentElement.parentElement.classList.toggle('open')"
-                    >
-                        <span class="toc-label">Contents</span>
-                        <span class="toc-arrow">▶</span>
-                    </button>
-                    <div class="toc-tree" set:html={tocHtml} />
-                </div>
+                <button
+                    class="toc-toggle"
+                    onclick="this.parentElement.classList.toggle('open')"
+                >
+                    <span class="toc-label">Contents</span>
+                    <span class="toc-arrow">▶</span>
+                </button>
+                <div class="toc-tree" set:html={tocHtml} />
             </nav>
             <div class="content" set:html={html} />
         </div>
@@ -341,24 +226,17 @@ var tocHtml = renderTree(root);
 
 <style>
     .docs {
-        padding: 48px 24px 48px;
-        overflow-x: hidden;
+        padding: 32px 24px 32px;
     }
     .docs-inner {
         max-width: 1200px;
         margin: 0 auto;
-        display: flex;
-        gap: 56px;
-        align-items: flex-start;
         padding: 0 24px;
     }
     .toc {
-        width: 240px;
-        flex-shrink: 0;
-    }
-    .toc-inner {
-        position: sticky;
-        top: 80px;
+        margin-bottom: 24px;
+        border: 1px solid var(--border);
+        background: color-mix(in srgb, var(--bg-card) 15%, transparent);
     }
     .toc-label {
         font-size: 11px;
@@ -368,23 +246,30 @@ var tocHtml = renderTree(root);
         color: var(--text-muted);
     }
     .toc-toggle {
-        display: none;
+        display: flex;
         width: 100%;
         align-items: center;
         justify-content: space-between;
         background: none;
         border: none;
         cursor: pointer;
-        padding: 16px 0;
+        padding: 10px 16px;
         font-family: var(--font-mono);
         color: var(--text-muted);
     }
     .toc-arrow {
-        font-size: 16px;
+        font-size: 14px;
         transition: transform 0.2s;
     }
     .toc.open .toc-arrow {
         transform: rotate(90deg);
+    }
+    .toc-tree {
+        display: none;
+        padding: 0 16px 12px;
+    }
+    .toc.open .toc-tree {
+        display: block;
     }
 
     :global(.toc-tree ul) {
@@ -432,12 +317,17 @@ var tocHtml = renderTree(root);
         color: var(--text);
         background: var(--bg-soft);
     }
+    :global(.toc-tree a.toc-active) {
+        color: var(--accent);
+        font-weight: 500;
+    }
     .content {
         flex: 1;
         min-width: 0;
         font-size: 15px;
         color: var(--text-dim);
-        line-height: 2;
+        line-height: 1.6;
+        text-align: justify;
         overflow-wrap: break-word;
         word-break: break-word;
     }
@@ -454,22 +344,23 @@ var tocHtml = renderTree(root);
     }
     :global(.content h1) {
         font-size: 28px;
-        margin: 0 0 12px;
+        margin: 0 0 16px;
     }
     :global(.content h2) {
         font-size: 22px;
-        margin: 56px 0 16px;
+        margin: 40px 0 16px;
     }
     :global(.content h3) {
         font-size: 17px;
-        margin: 40px 0 12px;
+        margin: 32px 0 12px;
     }
     :global(.content h4) {
         font-size: 14px;
-        margin: 32px 0 10px;
+        margin: 24px 0 8px;
     }
     :global(.content p) {
-        margin-bottom: 24px;
+        line-height: 1.6;
+        margin: 0 0 16px;
     }
     :global(.content a) {
         color: var(--text);
@@ -487,26 +378,30 @@ var tocHtml = renderTree(root);
         font-family: var(--font-mono);
         font-size: 13px;
         background: var(--bg);
-        padding: 2px 7px;
+        padding: 2px 6px;
         border: 1px dashed var(--border);
         color: var(--accent);
     }
     :global(.content .code-block-wrap) {
         position: relative;
+        margin: 0 0 16px;
     }
     :global(.content .copy-btn) {
         position: absolute;
         top: 8px;
         right: 8px;
+        width: 28px;
+        height: 28px;
         background: var(--bg-card);
         border: 1px solid var(--border);
         color: var(--text-muted);
         cursor: pointer;
-        padding: 5px;
+        padding: 0;
         line-height: 0;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-sizing: border-box;
         z-index: 1;
         transition:
             color 0.15s,
@@ -519,34 +414,38 @@ var tocHtml = renderTree(root);
     :global(.content pre) {
         background: var(--bg-card);
         border: 2px dashed var(--border);
-        padding: 20px 24px;
+        padding: 16px 20px;
         overflow-x: auto;
-        margin-bottom: 28px;
+        margin: 0;
         font-size: 13px;
-        line-height: 1.8;
+        line-height: 1.5;
     }
     :global(.content pre code) {
         background: none;
         border: none;
         padding: 0;
         font-size: 13px;
-        line-height: 1.8;
+        line-height: 1.5;
     }
     :global(.content ul) {
         list-style: none;
         padding: 0;
-        margin-bottom: 24px;
+        margin: 0 0 16px;
     }
     :global(.content ul > li) {
         position: relative;
         padding-left: 22px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
+        line-height: 1.6;
+    }
+    :global(.content ul > li:last-child) {
+        margin-bottom: 0;
     }
     :global(.content ul > li)::before {
         content: "";
         position: absolute;
         left: 0;
-        top: 13px;
+        top: 10px;
         width: 7px;
         height: 7px;
         background: var(--accent);
@@ -554,47 +453,48 @@ var tocHtml = renderTree(root);
     }
 
     :global(.content ol) {
-        margin-bottom: 24px;
+        margin: 0 0 16px;
         padding-left: 24px;
     }
     :global(.content ol > li) {
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         padding-left: 4px;
+        line-height: 1.6;
     }
     :global(.content li > ul),
     :global(.content li > ol) {
-        margin-bottom: 0;
-        margin-top: 8px;
+        margin: 6px 0 0;
     }
     :global(.content hr) {
         border: none;
+        margin: 16px 0;
     }
     :global(.content blockquote) {
         border-left: 3px solid var(--accent);
-        padding: 16px 24px;
-        margin: 28px 0;
+        padding: 12px 20px;
+        margin: 0 0 16px;
         background: var(--bg-soft);
         color: var(--text-muted);
         font-size: 14px;
-        line-height: 1.8;
+        line-height: 1.6;
     }
     :global(.content blockquote p:last-child) {
         margin-bottom: 0;
     }
     :global(.content blockquote p) {
-        margin-bottom: 12px;
+        margin-bottom: 8px;
     }
     :global(.content table) {
+        display: block;
         overflow-x: auto;
-        text-wrap: nowrap;
-        white-space: nowrap;
         font-family: var(--font-mono);
         font-size: 12px;
-        line-height: 1.7;
+        line-height: 1.5;
         border-spacing: 0;
         width: 100%;
-        border-collapse: separate;
+        border-collapse: collapse;
         border: 1px solid var(--border);
+        margin: 0 0 16px;
     }
     :global(.content table :where(thead, tbody, tr, th, td)) {
         font-family: var(--font-mono);
@@ -609,6 +509,7 @@ var tocHtml = renderTree(root);
         padding: 4px 12px;
         text-align: left;
         border-bottom: 1px solid var(--border);
+        white-space: nowrap;
     }
     :global(.content th) {
         font-weight: 500;
@@ -631,7 +532,7 @@ var tocHtml = renderTree(root);
     }
     :global(.content img) {
         border: none;
-        margin: 10px 0;
+        margin: 8px 0;
         vertical-align: middle;
         max-width: 100%;
         height: auto;
@@ -641,58 +542,7 @@ var tocHtml = renderTree(root);
         font-weight: 600;
     }
     :global(.content h2 + h3) {
-        margin-top: 24px;
-    }
-    @media (max-width: 1000px) {
-        :global(.content table) {
-            display: block;
-            overflow-x: auto;
-            text-wrap: nowrap;
-            white-space: nowrap;
-        }
-    }
-    @media (max-width: 900px) {
-        .docs-inner {
-            flex-direction: column;
-            gap: 0;
-            line-height: 1;
-        }
-        .toc {
-            width: 100%;
-            margin-bottom: 36px;
-        }
-        .toc-inner {
-            position: static;
-        }
-        .toc-toggle {
-            display: flex;
-        }
-        .toc .toc-tree {
-            display: none;
-        }
-        .toc.open .toc-tree {
-            display: block;
-        }
-        .content {
-            min-width: 0;
-            max-width: 100%;
-            overflow-x: auto;
-        }
-        :global(.content table) {
-            display: table;
-            overflow-x: auto;
-            text-wrap: nowrap;
-            white-space: nowrap;
-        }
-        :global(.content pre) {
-            max-width: 100%;
-        }
-        :global(.content p) {
-            margin-bottom: 12px;
-        }
-        :global(.content h1) {
-            font-size: 24px;
-        }
+        margin-top: 16px;
     }
     @media (max-width: 500px) {
         .docs-inner {

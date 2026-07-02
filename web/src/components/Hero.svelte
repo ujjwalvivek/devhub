@@ -37,10 +37,13 @@
 
         dlLabel = os ? "download for " + os : "download";
 
-        fetch("https://api.github.com/repos/ujjwalvivek/devhub/releases/latest")
+        fetch(
+            "https://echopoint.ujjwalvivek.com/v1/store/github:devhub-gpui:releases",
+        )
             .then((r) => r.json())
             .then((data) => {
-                for (const a of data.assets) {
+                const release = Array.isArray(data) ? data[0] : data;
+                for (const a of release.assets) {
                     if (os === "linux" && a.name.includes("linux")) {
                         dlUrl = a.browser_download_url;
                         break;
@@ -59,11 +62,31 @@
     });
 
     const slides = [
-        { src: "/images/shot-1.webp", alt: "devhub screenshot 1" },
-        { src: "/images/shot-2.webp", alt: "devhub screenshot 2" },
-        { src: "/images/shot-3.webp", alt: "devhub screenshot 3" },
-        { src: "/images/shot-4.webp", alt: "devhub screenshot 4" },
-        { src: "/images/shot-5.webp", alt: "devhub screenshot 5" },
+        { src: "/images/gpui/shot-1.webp", alt: "devhub gpui screenshot 1" },
+        { src: "/images/gpui/shot-2.webp", alt: "devhub gpui screenshot 2" },
+        { src: "/images/gpui/shot-3.webp", alt: "devhub gpui screenshot 3" },
+        { src: "/images/gpui/shot-4.webp", alt: "devhub gpui screenshot 4" },
+        { src: "/images/gpui/shot-5.webp", alt: "devhub gpui screenshot 5" },
+        {
+            src: "/images/legacy/shot-1.webp",
+            alt: "devhub legacy screenshot 1",
+        },
+        {
+            src: "/images/legacy/shot-2.webp",
+            alt: "devhub legacy screenshot 2",
+        },
+        {
+            src: "/images/legacy/shot-3.webp",
+            alt: "devhub legacy screenshot 3",
+        },
+        {
+            src: "/images/legacy/shot-4.webp",
+            alt: "devhub legacy screenshot 4",
+        },
+        {
+            src: "/images/legacy/shot-5.webp",
+            alt: "devhub legacy screenshot 5",
+        },
     ];
 
     let current = $state(0);
@@ -91,74 +114,9 @@
         }, 4000);
         return () => clearInterval(id);
     });
-
-    let globalScore = $state<number | null>(null);
-    let pendingClicks = $state(0);
-    let scoreText = $state("...");
-
-    $effect(() => {
-        const API_BASE = "https://echopoint.ujjwalvivek.com";
-        const wsUrl = "wss://echopoint.ujjwalvivek.com/v1/click";
-        if (!window.epClickerSocket) {
-            try {
-                window.epClickerSocket = new WebSocket(wsUrl);
-                window.epClickerSocket.onmessage = (e: MessageEvent) => {
-                    const data = JSON.parse(e.data);
-                    if (data.global !== undefined) {
-                        window.epGlobalScore = data.global;
-                        globalScore = data.global;
-                    }
-                };
-            } catch {
-                console.error("WS fail");
-            }
-        } else {
-            if (window.epGlobalScore !== undefined) {
-                globalScore = window.epGlobalScore;
-            }
-        }
-    });
-
-    $effect(() => {
-        if (globalScore !== null) {
-            scoreText = globalScore.toLocaleString();
-        }
-    });
-
-    function handleClick() {
-        pendingClicks++;
-        const cur = globalScore ?? 0;
-        globalScore = cur + 1;
-        scoreText = (cur + 1).toLocaleString();
-        clearTimeout((handleClick as any).flushTimer);
-        (handleClick as any).flushTimer = setTimeout(() => {
-            const API_BASE = "https://echopoint.ujjwalvivek.com";
-            if (
-                window.epClickerSocket &&
-                window.epClickerSocket.readyState === WebSocket.OPEN
-            ) {
-                window.epClickerSocket.send(
-                    JSON.stringify({ type: "click", count: pendingClicks }),
-                );
-            } else {
-                fetch(`${API_BASE}/v1/click`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ count: pendingClicks }),
-                });
-            }
-            pendingClicks = 0;
-        }, 300);
-    }
 </script>
 
 <section class="hero">
-    <div class="hero-top">
-        <div class="clicker">
-            <div class="clicker-score">{scoreText}</div>
-            <button class="clicker-btn" onclick={handleClick}>CLICK ME!</button>
-        </div>
-    </div>
     <div class="hero-box">
         <div class="box-corner tl"></div>
         <div class="box-corner tr"></div>
@@ -169,7 +127,7 @@
             <div class="badges">
                 {#each infoBadges as b}
                     <img
-                        src="{echopoint}/svg/badges/{b.kind}?repo=devhub&logo=github&{badge}"
+                        src="{echopoint}/svg/badges/{b.kind}?repo=devhub-gpui&logo=github&{badge}"
                         alt={b.alt}
                         height="24"
                     />
@@ -177,16 +135,14 @@
             </div>
             <h1 class="title">Your Project Hub</h1>
             <p class="subtitle">
-                Native egui/eframe desktop app, a lightweight dev hub and
-                launcher, for scanning, indexing, and browsing local and remote
-                SSH software projects, with telemetry tracking powered by
-                Echopoint.
+                Native GPUI desktop app, a Zed-first project hub for scanning,
+                indexing, and browsing local and remote SSH software projects.
             </p>
             <div class="actions">
-                <a href="/docs" class="btn">docs</a>
-                <a href={dlUrl} class="btn">{dlLabel}</a>
+                <a href="/docs" class="btn">LLM Rationale</a>
+                <a href="#downloads" class="btn">download</a>
                 <a
-                    href="https://github.com/ujjwalvivek/devhub"
+                    href="https://github.com/ujjwalvivek/devhub-gpui"
                     class="btn secondary">github</a
                 >
             </div>
@@ -196,30 +152,30 @@
             <div class="portrait-card">
                 <div class="card-header">
                     <a
-                        href="https://github.com/ujjwalvivek/devhub"
-                        class="card-repo">devhub</a
+                        href="https://github.com/ujjwalvivek/devhub-gpui"
+                        class="card-repo">devhub-gpui</a
                     >
-                    <span class="card-author">ujjwalvivek/devhub</span>
+                    <span class="card-author">ujjwalvivek/devhub-gpui</span>
                 </div>
 
                 <div class="card-badges">
                     <img
-                        src="{echopoint}/svg/badges/stars?repo=devhub&logo=github&{badge}"
+                        src="{echopoint}/svg/badges/stars?repo=devhub-gpui&logo=github&{badge}"
                         alt="stars"
                         height="20"
                     />
                     <img
-                        src="{echopoint}/svg/badges/updated?repo=devhub&logo=github&{badge}"
+                        src="{echopoint}/svg/badges/updated?repo=devhub-gpui&logo=github&{badge}"
                         alt="updated"
                         height="20"
                     />
                     <img
-                        src="{echopoint}/svg/badges/release?repo=devhub&logo=github&{badge}"
+                        src="{echopoint}/svg/badges/release?repo=devhub-gpui&logo=github&{badge}"
                         alt="release"
                         height="20"
                     />
                     <img
-                        src="{echopoint}/svg/badges/docs?repo=devhub&logo=docs&{badge}"
+                        src="{echopoint}/svg/badges/docs?repo=devhub-gpui&logo=docs&{badge}"
                         alt="docs"
                         height="20"
                     />
@@ -227,17 +183,12 @@
 
                 <div class="card-charts">
                     <img
-                        src="{echopoint}/svg/commits?repo=devhub&limit=3&width=280&{cardStr}&egui_width=280"
+                        src="{echopoint}/svg/commits?repo=devhub-gpui&limit=3&width=280&{cardStr}&egui_width=280"
                         alt="commits"
                         class="card-img"
                     />
                     <img
-                        src="{echopoint}/svg/releases?repo=devhub&limit=3&width=280&{cardStr}&egui_width=280"
-                        alt="releases"
-                        class="card-img"
-                    />
-                    <img
-                        src="{echopoint}/svg/langs?repo=devhub&limit=6&width=280&height=8&{cardStr}&pctColor=a6a6a6&{langStr}&color2=c0c0c0&color3=969696&color4=6d6d6d&color5=464646&egui_width=280"
+                        src="{echopoint}/svg/langs?repo=devhub-gpui&limit=6&width=280&height=8&{cardStr}&pctColor=a6a6a6&{langStr}&color2=c0c0c0&color3=969696&color4=6d6d6d&color5=464646&egui_width=280"
                         alt="languages"
                         class="card-img"
                     />
@@ -255,6 +206,9 @@
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div class="slider" onmouseenter={pause} onmouseleave={resume}>
             <div class="viewport">
+                <span class="legacy-preview"
+                    >{current < 5 ? "gpui" : "legacy"}</span
+                >
                 <div
                     class="track"
                     style="transform: translateX(-{current * 100}%)"
@@ -289,20 +243,9 @@
 
 <style>
     .hero {
-        padding: 60px 24px 24px;
+        padding: 24px;
         max-width: 1200px;
         margin: 0 auto;
-    }
-    .hero-top {
-        position: relative;
-        display: flex;
-        gap: 0;
-        background: color-mix(in srgb, var(--bg-card) 10%, transparent);
-        backdrop-filter: blur(32px);
-        -webkit-backdrop-filter: blur(32px);
-        border: 2px dashed color-mix(in srgb, var(--border) 50%, transparent);
-        padding: 16px;
-        margin-bottom: 16px;
     }
     .hero-box {
         position: relative;
@@ -312,8 +255,8 @@
         backdrop-filter: blur(32px);
         -webkit-backdrop-filter: blur(32px);
         border: 2px dashed color-mix(in srgb, var(--border) 50%, transparent);
-        padding: 16px;
-        margin-bottom: 64px;
+        padding: 12px;
+        margin-bottom: 12px;
     }
     .slider-box {
         position: relative;
@@ -323,7 +266,8 @@
         backdrop-filter: blur(32px);
         -webkit-backdrop-filter: blur(32px);
         border: 2px dashed color-mix(in srgb, var(--border) 50%, transparent);
-        padding: 16px;
+        padding: 12px;
+        margin-bottom: 12px;
     }
     .box-corner {
         position: absolute;
@@ -361,7 +305,7 @@
     }
     .hero-left {
         flex: 7;
-        padding-right: 48px;
+        padding-right: 32px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -380,10 +324,10 @@
         backdrop-filter: blur(24px);
         -webkit-backdrop-filter: blur(24px);
         border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
-        padding: 20px;
+        padding: 16px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
     }
     .card-header {
         display: flex;
@@ -423,7 +367,7 @@
     .badges {
         display: flex;
         gap: 8px;
-        margin-bottom: 28px;
+        margin-bottom: 20px;
         flex-wrap: wrap;
     }
     .title {
@@ -431,7 +375,7 @@
         font-size: 44px;
         font-weight: 800;
         letter-spacing: -1px;
-        margin-bottom: 14px;
+        margin-bottom: 10px;
         line-height: 1.15;
         text-transform: uppercase;
         text-shadow: 0 0 6px var(--accent);
@@ -440,7 +384,7 @@
         font-size: 14px;
         color: var(--text-dim);
         line-height: 1.75;
-        margin-bottom: 32px;
+        margin-bottom: 20px;
         max-width: 700px;
     }
     .actions {
@@ -448,7 +392,7 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;
         width: min(100%, 520px);
-        margin-bottom: 32px;
+        margin-bottom: 20px;
     }
     .btn {
         display: inline-flex;
@@ -486,54 +430,6 @@
         color: var(--text);
     }
 
-    .clicker {
-        display: flex;
-        align-items: stretch;
-        width: 100%;
-        gap: 0;
-    }
-    .clicker-score {
-        display: flex;
-        flex: 1;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: var(--accent);
-        font-family: var(--font-mono);
-        letter-spacing: 0.05em;
-        text-shadow: 0 0 10px var(--accent);
-        border: 1px solid var(--border);
-        background: var(--bg-card);
-        padding: 9px 20px;
-        min-width: 100px;
-        border-right: none;
-    }
-    .clicker-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-family: var(--font-mono);
-        font-size: 12px;
-        padding: 9px 24px;
-        border: 1px solid var(--border);
-        background: var(--bg-card);
-        color: var(--text);
-        text-decoration: none;
-        cursor: pointer;
-        transition:
-            background 0.15s,
-            border-color 0.15s,
-            transform 0.1s ease;
-    }
-    .clicker-btn:hover {
-        background: var(--bg-soft);
-        border-color: var(--text-muted);
-    }
-    .clicker-btn:active {
-        transform: scale(0.97);
-    }
-
     .slider {
         max-width: 1200px;
         margin: 0 auto;
@@ -545,6 +441,20 @@
         border: 2px solid var(--border);
         background: var(--bg);
         transition: border-color 0.2s;
+    }
+    .legacy-preview {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 5;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-dim);
+        background: color-mix(in srgb, var(--bg) 80%, transparent);
+        padding: 3px 8px;
+        border: 1px solid var(--border);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
     }
     .track {
         display: flex;
@@ -658,14 +568,8 @@
         .btn {
             padding: 10px 8px;
         }
-        .clicker {
-            width: 100%;
-        }
         .title {
             text-shadow: 0 0 2px var(--accent);
-        }
-        .clicker-score {
-            text-shadow: 0 0 3px var(--accent);
         }
         .hero-right {
             width: 100%;

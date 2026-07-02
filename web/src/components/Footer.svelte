@@ -1,7 +1,9 @@
 <footer>
     <div class="container">
-        <span class="copy">devhub &mdash; mit</span>
-        <a href="https://github.com/ujjwalvivek/devhub" class="link">github</a>
+        <span class="copy">devhub &mdash; GPLv3</span>
+        <a href="https://github.com/ujjwalvivek/devhub-gpui" class="link"
+            >github</a
+        >
     </div>
 </footer>
 

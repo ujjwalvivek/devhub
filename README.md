@@ -1,4 +1,10 @@
-# Devhub
+# Devhub [ARCHIVED]
+
+<p>
+  <img src="https://echopoint.ujjwalvivek.com/svg/badges/custom?bg=111111&badgeColor=3a2b73&textColor=e8e8e8&border=555555&borderWidth=2&rx=0&px=4&py=4&leftText=LEGACY&rightText=ARCHIVED&logo=terminal" height="24" alt="legacy">
+</p>
+
+Please see [devhub-gpui](https://github.com/ujjwalvivek/devhub-gpui) for the current, actively maintained version.
 
 <p>
   <img src="https://echopoint.ujjwalvivek.com/svg/badges/stars?repo=devhub&logo=github&bg=111111&badgeColor=2b2b2b&textColor=e8e8e8&border=555555&borderWidth=2&rx=0&px=6&py=4" height="24" alt="stars">

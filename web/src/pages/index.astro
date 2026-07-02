@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/Hero.svelte";
 import Features from "../components/Features.svelte";
 import Downloads from "../components/Downloads.svelte";
+import Clicker from "../components/Clicker.svelte";
 import Wallpaper from "../components/Wallpaper.svelte";
 ---
 
@@ -10,5 +11,6 @@ import Wallpaper from "../components/Wallpaper.svelte";
     <Hero client:load />
     <Features client:load />
     <Downloads client:load />
+    <Clicker client:load />
     <Wallpaper client:load />
 </BaseLayout>

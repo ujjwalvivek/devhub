@@ -16,19 +16,19 @@
             icon: "folder",
         },
         {
-            title: "editor handoff",
-            desc: "Template-based launcher for VS Code (local + Remote SSH URI), Zed, or any CLI editor. Configured in TOML.",
+            title: "zed-first launching",
+            desc: "Local paths and remote SSH targets open through Zed. Native OS application chooser as a fallback.",
             icon: "code",
-        },
-        {
-            title: "telemetry badges",
-            desc: "SVG badges and cards from echopoint.ujjwalvivek.com for stars, commits, languages, releases, health. Rendered via resvg.",
-            icon: "chart",
         },
         {
             title: "five themes",
             desc: "Catppuccin Mocha, Rose Pine Moon, Tokyo Night Storm, Horizon Bold, Monochrome Zero. Auto light variants, follows OS theme.",
             icon: "palette",
+        },
+        {
+            title: "cross-platform",
+            desc: "Portable archives for Windows, Linux, and macOS with SHA-256 checksums. No installer, no telemetry, just extract and run.",
+            icon: "globe",
         },
     ];
 
@@ -41,6 +41,8 @@
         chart: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
         palette:
             "M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01",
+        globe:
+            "M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z",
     };
 </script>
 
@@ -50,21 +52,23 @@
         <div class="grid">
             {#each features as f}
                 <div class="card">
-                    <div class="card-icon">
-                        <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <path d={icons[f.icon]} />
-                        </svg>
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d={icons[f.icon]} />
+                            </svg>
+                        </div>
+                        <h3 class="card-title">{f.title}</h3>
                     </div>
-                    <h3 class="card-title">{f.title}</h3>
                     <p class="card-desc">{f.desc}</p>
                 </div>
             {/each}
@@ -74,7 +78,7 @@
 
 <style>
     .features {
-        padding: 60px 24px 60px;
+        padding: 24px;
         max-width: 1200px;
         margin: 0 auto;
     }
@@ -85,31 +89,37 @@
         color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 1px;
-        margin-bottom: 32px;
+        margin-bottom: 20px;
     }
     .grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 16px;
+        gap: 12px;
     }
     .card {
         background: color-mix(in srgb, var(--bg-card) 15%, transparent);
         backdrop-filter: blur(24px);
         -webkit-backdrop-filter: blur(24px);
         border: 2px dashed color-mix(in srgb, var(--accent) 50%, transparent);
-        padding: 24px;
+        padding: 16px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
+    }
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     .card-icon {
-        width: 36px;
-        height: 36px;
+        width: 28px;
+        height: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
         border: 1.5px solid color-mix(in srgb, var(--border) 50%, transparent);
         color: var(--accent);
+        flex-shrink: 0;
     }
     .card-title {
         font-family: var(--font-mono);
@@ -124,7 +134,7 @@
     }
     @media (max-width: 768px) {
         .features {
-            padding: 32px 24px;
+            padding: 20px 24px;
         }
     }
 </style>
