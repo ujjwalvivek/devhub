@@ -366,7 +366,8 @@
         width: 24px;
         height: 24px;
         background: currentColor;
-        mask: url("images/devhub-mark.svg") center / contain no-repeat;
+        -webkit-mask: url("/images/devhub-mark.svg") center / contain no-repeat;
+        mask: url("/images/devhub-mark.svg") center / contain no-repeat;
     }
 
     .links {

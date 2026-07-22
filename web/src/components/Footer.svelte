@@ -80,7 +80,8 @@
         z-index: 0;
         content: "";
         background: var(--text-muted);
-        mask: url("images/media-grid.svg") 0 0 / 24px 24px repeat;
+        -webkit-mask: url("/images/media-grid.svg") 0 0 / 24px 24px repeat;
+        mask: url("/images/media-grid.svg") 0 0 / 24px 24px repeat;
         opacity: 0.035;
     }
 
@@ -260,7 +261,8 @@
         height: 210px;
         flex: 0 0 210px;
         background: var(--accent);
-        mask: url("images/devhub-mark.svg") center / contain no-repeat;
+        -webkit-mask: url("/images/devhub-mark.svg") center / contain no-repeat;
+        mask: url("/images/devhub-mark.svg") center / contain no-repeat;
     }
 
     .build .mark {

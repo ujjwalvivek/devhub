@@ -85,7 +85,7 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     background-color: var(--bg);
-    background-image: url("images/paper-texture.svg");
+    background-image: url("/images/paper-texture.svg");
     background-size: 180px 180px;
     background-attachment: fixed;
     background-blend-mode: soft-light;

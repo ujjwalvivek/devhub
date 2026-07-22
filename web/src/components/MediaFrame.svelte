@@ -125,7 +125,8 @@
         z-index: -1;
         content: "";
         background: var(--text-muted);
-        mask: url("images/media-grid.svg") 0 0 / 24px 24px repeat;
+        -webkit-mask: url("/images/media-grid.svg") 0 0 / 24px 24px repeat;
+        mask: url("/images/media-grid.svg") 0 0 / 24px 24px repeat;
         opacity: 0.16;
     }
 
