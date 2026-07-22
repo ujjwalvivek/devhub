@@ -3,14 +3,15 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Hero from "../components/Hero.svelte";
 import Features from "../components/Features.svelte";
 import Downloads from "../components/Downloads.svelte";
-import Clicker from "../components/Clicker.svelte";
-import Wallpaper from "../components/Wallpaper.svelte";
+import OpenTelemetry from "../components/OpenTelemetry.svelte";
 ---
 
-<BaseLayout title="devhub | Native desktop hub for projects">
+<BaseLayout
+    title="DevHub 2.1.4 - Your project, before the editor"
+    description="A local-first native project hub for local and SSH repositories, built in Rust with GPUI."
+>
     <Hero client:load />
     <Features client:load />
+    <OpenTelemetry client:load />
     <Downloads client:load />
-    <Clicker client:load />
-    <Wallpaper client:load />
 </BaseLayout>

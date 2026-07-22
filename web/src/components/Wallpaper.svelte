@@ -19,13 +19,7 @@
         };
     }
 
-    function sceneForTheme() {
-        var theme = document.documentElement.getAttribute("data-theme");
-        var vOpts =
-            theme === "horizon"
-                ? { opacity: 0.5, innerRadius: 0.9, outerRadius: 0.3 }
-                : { opacity: 0.5 };
-
+    function createScene() {
         return mod.compose([
             {
                 fn: mod.primitives.background,
@@ -74,14 +68,14 @@
                     speed: 0.05,
                 },
             },
-            { fn: mod.primitives.vignette, options: vOpts },
+            { fn: mod.primitives.vignette, options: { opacity: 0.5 } },
         ]);
     }
 
     function apply() {
         if (!mod || !canvas) return;
         mod.stop();
-        scene = sceneForTheme();
+        scene = createScene();
         const p = palette();
         if (isStatic) {
             mod.renderStatic(canvas, scene, p, { fps: 0 });
@@ -125,7 +119,7 @@
             mo = new MutationObserver(() => apply());
             mo.observe(document.documentElement, {
                 attributes: true,
-                attributeFilter: ["data-theme", "data-mode"],
+                attributeFilter: ["data-mode"],
             });
         });
 

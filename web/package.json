@@ -1,7 +1,7 @@
 {
   "name": "devhub-web",
   "type": "module",
-  "version": "1.0.0",
+  "version": "2.1.4",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -11,9 +11,6 @@
   "dependencies": {
     "@astrojs/svelte": "^7.0.0",
     "astro": "^5.0.0",
-    "highlight.js": "^11.11.1",
-    "marked": "^18.0.5",
-    "marked-highlight": "^2.2.4",
     "svelte": "^5.0.0"
   },
   "devDependencies": {

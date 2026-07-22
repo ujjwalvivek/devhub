@@ -6,13 +6,11 @@ import Footer from "../components/Footer.svelte";
 export interface Props {
     title?: string;
     description?: string;
-    showWallpaperBtn?: boolean;
 }
 
 const {
-    title = "devhub",
-    description = "A native desktop hub for local and remote SSH project discovery.",
-    showWallpaperBtn = true,
+    title = "DevHub 2.1.4",
+    description = "A local-first project hub for local and SSH repositories, built in Rust with GPUI.",
 } = Astro.props;
 ---
 
@@ -21,8 +19,14 @@ const {
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{title}</title>
+        <meta name="theme-color" content="#0e0e0e" />
         <meta name="description" content={description} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="/images/gpui/home.png" />
+        <title>{title}</title>
+        <link rel="icon" type="image/svg+xml" href="images/appicon.svg" />
         <link
             rel="preload"
             href="https://cdn.ujjwalvivek.com/fonts/Monaspace/Neon/Var.woff2"
@@ -30,69 +34,79 @@ const {
             type="font/woff2"
             crossorigin
         />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
-            rel="icon"
-            type="image/x-icon"
-            href="https://cdn.ujjwalvivek.com/icons/logo192.png"
-        />
-        <link
-            rel="preconnect"
-            href="https://echopoint.ujjwalvivek.com"
-            crossorigin
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@700&display=swap"
         />
         <script is:inline>
             (function () {
-                var theme =
-                    localStorage.getItem("devhub-theme") || "monochrome";
+                localStorage.removeItem("devhub-theme");
                 var mode = localStorage.getItem("devhub-mode") || "system";
                 var effective = mode;
                 if (mode === "system") {
-                    effective = window.matchMedia(
-                        "(prefers-color-scheme: light)",
-                    ).matches
+                    effective = window.matchMedia("(prefers-color-scheme: light)").matches
                         ? "light"
                         : "dark";
                 }
-                document.documentElement.setAttribute("data-theme", theme);
                 document.documentElement.setAttribute("data-mode", effective);
             })();
-        </script></head
-    >
-
-    <script is:inline>
-        window.__initTheme = function () {
-            var theme = localStorage.getItem("devhub-theme") || "monochrome";
-            var mode = localStorage.getItem("devhub-mode") || "system";
-            var effective = mode;
-            if (mode === "system") {
-                effective = window.matchMedia("(prefers-color-scheme: light)")
-                    .matches
-                    ? "light"
-                    : "dark";
-            }
-            document.documentElement.setAttribute("data-theme", theme);
-            document.documentElement.setAttribute("data-mode", effective);
-        };
-        window.__theme = {
-            setTheme: function (t) {
-                localStorage.setItem("devhub-theme", t);
-                window.__initTheme();
-            },
-            setMode: function (m) {
-                localStorage.setItem("devhub-mode", m);
-                window.__initTheme();
-            },
-        };
-        window
-            .matchMedia("(prefers-color-scheme: light)")
-            .addEventListener("change", window.__initTheme);
-    </script>
-
+        </script>
+    </head>
     <body>
-        <Header client:load showWallpaperBtn={showWallpaperBtn} />
+        <Header client:load />
         <main>
             <slot />
         </main>
         <Footer />
+
+        <script is:inline>
+            (function () {
+                window.__initTheme = function () {
+                    var mode = localStorage.getItem("devhub-mode") || "system";
+                    var effective = mode;
+                    if (mode === "system") {
+                        effective = window.matchMedia("(prefers-color-scheme: light)").matches
+                            ? "light"
+                            : "dark";
+                    }
+                    document.documentElement.setAttribute("data-mode", effective);
+                };
+
+                window
+                    .matchMedia("(prefers-color-scheme: light)")
+                    .addEventListener("change", window.__initTheme);
+
+                function initReveal() {
+                    var targets = document.querySelectorAll("[data-reveal]");
+                    if (!("IntersectionObserver" in window)) {
+                        targets.forEach(function (target) {
+                            target.classList.add("is-visible");
+                        });
+                        return;
+                    }
+                    var observer = new IntersectionObserver(
+                        function (entries) {
+                            entries.forEach(function (entry) {
+                                if (!entry.isIntersecting) return;
+                                entry.target.classList.add("is-visible");
+                                observer.unobserve(entry.target);
+                            });
+                        },
+                        { rootMargin: "0px 0px -5% 0px", threshold: 0.06 },
+                    );
+                    targets.forEach(function (target) {
+                        observer.observe(target);
+                    });
+                }
+
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", initReveal);
+                } else {
+                    initReveal();
+                }
+            })();
+        </script>
     </body>
 </html>

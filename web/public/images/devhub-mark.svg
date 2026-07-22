@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" fill="none" viewBox="42.5 42.5 171 171">
+  <defs>
+    <mask id="route-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="256" height="256">
+      <rect width="256" height="256" fill="#fff"/>
+      <path d="M43 218 160 69" stroke="#000" stroke-width="32" stroke-linecap="square"/>
+    </mask>
+  </defs>
+  <g transform="translate(30.72 30.72) scale(.76)">
+    <g mask="url(#route-cut)">
+      <path d="M48 32v192h76c60 0 98-37 98-96s-38-96-98-96H48Z" stroke="#fff" stroke-width="16" stroke-linejoin="round"/>
+      <path d="M84 68v120h37c39 0 63-23 63-60s-24-60-63-60H84Z" stroke="#fff" stroke-width="16" stroke-linejoin="round"/>
+    </g>
+    <path d="M43 218 160 69" stroke="#fff" stroke-width="16" stroke-linecap="square"/>
+  </g>
+</svg>
