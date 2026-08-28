@@ -6,3 +6,4 @@ temp/
 .astro/
 *.log
 *.env
+web-legacy/
